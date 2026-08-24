@@ -1,0 +1,102 @@
+// Illustrative prototype data for the Assam flood case study. These features
+// and normalized factors are intentionally local demo data, not live flood
+// boundaries, current infrastructure-status information, or live assessments.
+
+export const assamDataBounds = [
+  [25.65, 90.6],
+  [27.95, 95.15],
+]
+
+export const floodRiskZones = [
+  {
+    id: 'dhemaji-riverine',
+    name: 'Dhemaji Riverine Sector',
+    riskLevel: 'Critical',
+    severityScore: 92,
+    populationExposed: '1.8 lakh',
+    accessibilityLabel: 'Boat access advised',
+    hazardSeverity: 95,
+    populationExposure: 92,
+    vulnerability: 82,
+    infrastructureImpact: 78,
+    accessibility: 22,
+    geometry: { type: 'Polygon', coordinates: [[[94.42, 27.45], [94.75, 27.42], [94.83, 27.25], [94.54, 27.15], [94.34, 27.27], [94.42, 27.45]]] },
+  },
+  {
+    id: 'lakhimpur-belt',
+    name: 'Lakhimpur Floodplain Belt',
+    riskLevel: 'Critical',
+    severityScore: 88,
+    populationExposed: '1.4 lakh',
+    accessibilityLabel: 'Restricted road access',
+    hazardSeverity: 90,
+    populationExposure: 88,
+    vulnerability: 78,
+    infrastructureImpact: 70,
+    accessibility: 30,
+    geometry: { type: 'Polygon', coordinates: [[[94.05, 27.1], [94.42, 27.08], [94.48, 26.9], [94.19, 26.79], [93.98, 26.91], [94.05, 27.1]]] },
+  },
+  {
+    id: 'barpeta-lowlands',
+    name: 'Barpeta Lowlands',
+    riskLevel: 'High',
+    severityScore: 74,
+    populationExposed: '96,000',
+    accessibilityLabel: 'Main routes restricted',
+    hazardSeverity: 76,
+    populationExposure: 74,
+    vulnerability: 66,
+    infrastructureImpact: 58,
+    accessibility: 48,
+    geometry: { type: 'Polygon', coordinates: [[[91.0, 26.6], [91.36, 26.61], [91.42, 26.43], [91.14, 26.32], [90.92, 26.42], [91.0, 26.6]]] },
+  },
+  {
+    id: 'morigaon-char',
+    name: 'Morigaon Char Areas',
+    riskLevel: 'High',
+    severityScore: 69,
+    populationExposed: '72,000',
+    accessibilityLabel: 'Boat and local road access',
+    hazardSeverity: 70,
+    populationExposure: 63,
+    vulnerability: 72,
+    infrastructureImpact: 52,
+    accessibility: 40,
+    geometry: { type: 'Polygon', coordinates: [[[92.1, 26.42], [92.43, 26.44], [92.5, 26.28], [92.25, 26.18], [92.02, 26.28], [92.1, 26.42]]] },
+  },
+  {
+    id: 'nagaon-corridor',
+    name: 'Nagaon Flood Corridor',
+    riskLevel: 'Moderate',
+    severityScore: 48,
+    populationExposed: '31,000',
+    accessibilityLabel: 'Road access available',
+    hazardSeverity: 50,
+    populationExposure: 43,
+    vulnerability: 49,
+    infrastructureImpact: 35,
+    accessibility: 75,
+    geometry: { type: 'Polygon', coordinates: [[[92.55, 26.63], [92.94, 26.61], [93.02, 26.43], [92.71, 26.36], [92.49, 26.46], [92.55, 26.63]]] },
+  },
+]
+
+export const hospitals = [
+  { id: 'guwahati-medical', name: 'Guwahati Medical Coordination Point', type: 'Tertiary care', latitude: 26.153, longitude: 91.768 },
+  { id: 'tezpur-hospital', name: 'Tezpur Emergency Hospital', type: 'District hospital', latitude: 26.652, longitude: 92.792 },
+  { id: 'lakhimpur-hospital', name: 'North Lakhimpur Medical Point', type: 'District hospital', latitude: 27.236, longitude: 94.103 },
+  { id: 'barpeta-hospital', name: 'Barpeta Relief Health Centre', type: 'Field health centre', latitude: 26.322, longitude: 91.007 },
+]
+
+export const reliefShelters = [
+  { id: 'dhemaji-shelter', name: 'Dhemaji Sector 3 Relief Shelter', capacity: 850, latitude: 27.48, longitude: 94.57 },
+  { id: 'lakhimpur-shelter', name: 'Lakhimpur Riverside Relief Shelter', capacity: 620, latitude: 27.15, longitude: 94.18 },
+  { id: 'morigaon-shelter', name: 'Morigaon Community Relief Shelter', capacity: 540, latitude: 26.29, longitude: 92.29 },
+  { id: 'nagaon-shelter', name: 'Nagaon Transit Relief Shelter', capacity: 430, latitude: 26.46, longitude: 92.75 },
+]
+
+export const roads = [
+  { id: 'nh-15-east', name: 'East Assam Corridor (demo)', status: 'Open', geometry: { type: 'LineString', coordinates: [[93.55, 27.05], [94.05, 27.08], [94.55, 27.16], [94.85, 27.22]] } },
+  { id: 'barpeta-link', name: 'Barpeta Response Link (demo)', status: 'Restricted', geometry: { type: 'LineString', coordinates: [[90.9, 26.47], [91.14, 26.49], [91.37, 26.51]] } },
+  { id: 'morigaon-crossing', name: 'Morigaon River Crossing (demo)', status: 'Blocked', geometry: { type: 'LineString', coordinates: [[92.04, 26.31], [92.27, 26.34], [92.49, 26.38]] } },
+  { id: 'nagaon-route', name: 'Nagaon Relief Route (demo)', status: 'Open', geometry: { type: 'LineString', coordinates: [[92.43, 26.48], [92.7, 26.51], [92.98, 26.53]] } },
+]
