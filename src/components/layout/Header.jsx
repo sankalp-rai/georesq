@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Menu, PanelLeftClose, PanelLeftOpen, Search, Bell } from 'lucide-react'
 import StatusBadge from '../ui/StatusBadge'
+import ScenarioSelector from './ScenarioSelector'
+import { useScenario } from '../../context/useScenario'
 
 function useClock() {
   const [now, setNow] = useState(new Date())
@@ -13,6 +15,7 @@ function useClock() {
 
 export default function Header({ onToggleSidebar, sidebarCollapsed, onOpenMobileNav }) {
   const now = useClock()
+  const { selectedScenario } = useScenario()
   const time = now.toLocaleTimeString('en-IN', {
     timeZone: 'Asia/Kolkata',
     hour: '2-digit',
@@ -47,14 +50,17 @@ export default function Header({ onToggleSidebar, sidebarCollapsed, onOpenMobile
 
       <div className="min-w-0">
         <h1 className="truncate text-sm font-semibold text-text-primary">
-          Assam Floods — 2026
+          Disaster Intelligence Command Center
         </h1>
         <p className="truncate font-mono text-[10px] uppercase tracking-widest text-text-faint">
-          Active Scenario · Brahmaputra Basin
+          Universal geospatial response platform
         </p>
       </div>
 
-      <StatusBadge level="warning">Orange Alert</StatusBadge>
+      <div className="hidden sm:block"><ScenarioSelector /></div>
+      <StatusBadge level={selectedScenario.hasDemoData ? 'warning' : 'watch'}>
+        {selectedScenario.hasDemoData ? 'Orange Alert' : 'Demo Pending'}
+      </StatusBadge>
 
       <div className="ml-auto flex items-center gap-2">
         <div className="hidden items-center gap-2 rounded-sm border border-line bg-panel-raised px-2.5 py-1.5 sm:flex">

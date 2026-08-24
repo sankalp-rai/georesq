@@ -1,0 +1,61 @@
+// Scenario registry for the universal GeoResQ platform. Only the Assam flood
+// scenario has local illustrative demo data in this prototype.
+export const scenarios = [
+  {
+    id: 'assam-flood-2026',
+    name: 'Assam Flood 2026',
+    region: 'Assam',
+    country: 'India',
+    disasterType: 'Flood',
+    date: '2026-07-01',
+    status: 'Active',
+    description: 'Demonstration scenario for the GeoResQ disaster-intelligence platform.',
+    hasDemoData: true,
+  },
+  {
+    id: 'earthquake-demo',
+    name: 'Earthquake Scenario',
+    region: 'Demo region',
+    country: 'Unassigned',
+    disasterType: 'Earthquake',
+    date: null,
+    status: 'Placeholder',
+    description: 'Placeholder scenario. Demonstration data has not been created.',
+    hasDemoData: false,
+  },
+  {
+    id: 'cyclone-demo',
+    name: 'Cyclone Scenario',
+    region: 'Demo region',
+    country: 'Unassigned',
+    disasterType: 'Cyclone',
+    date: null,
+    status: 'Placeholder',
+    description: 'Placeholder scenario. Demonstration data has not been created.',
+    hasDemoData: false,
+  },
+  {
+    id: 'landslide-demo',
+    name: 'Landslide Scenario',
+    region: 'Demo region',
+    country: 'Unassigned',
+    disasterType: 'Landslide',
+    date: null,
+    status: 'Placeholder',
+    description: 'Placeholder scenario. Demonstration data has not been created.',
+    hasDemoData: false,
+  },
+  {
+    id: 'wildfire-demo',
+    name: 'Wildfire Scenario',
+    region: 'Demo region',
+    country: 'Unassigned',
+    disasterType: 'Wildfire',
+    date: null,
+    status: 'Placeholder',
+    description: 'Placeholder scenario. Demonstration data has not been created.',
+    hasDemoData: false,
+  },
+]
+
+export const defaultScenarioId = 'assam-flood-2026'

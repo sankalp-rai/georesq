@@ -4,6 +4,7 @@ import {
   GeoJSON,
   LayersControl,
   MapContainer,
+  Polyline,
   Popup,
   TileLayer,
   useMap,
@@ -11,11 +12,13 @@ import {
 import {
   assamDataBounds,
   floodRiskZones,
-  hospitals,
-  reliefShelters,
-  roads,
 } from '../../data/mapData'
 import { calculateRisk, getRiskExplanation } from '../../utils/riskEngine'
+import { calculateVulnerability } from '../../utils/vulnerabilityEngine'
+import { analyzeZoneResources } from '../../utils/resourceEngine'
+import { hospitals, reliefShelters, reliefUnits, rescueTeams } from '../../data/resourceData'
+import { roadNetwork, roadNodes } from '../../data/roadNetwork'
+import { getZoneRoadAccess } from '../../utils/routingEngine'
 
 const { Overlay } = LayersControl
 
@@ -104,6 +107,9 @@ function MapLegend() {
 function FloodZoneLayers() {
   return floodRiskZones.map((zone) => {
     const risk = calculateRisk(zone)
+    const vulnerability = calculateVulnerability(zone)
+    const resources = analyzeZoneResources(zone, { hospitals, reliefShelters, rescueTeams, reliefUnits })
+    const roadAccess = getZoneRoadAccess(roadNetwork, zone.id)
     const explanation = getRiskExplanation(risk)
 
     return (
@@ -115,14 +121,32 @@ function FloodZoneLayers() {
         <Popup>
           <div className="map-popup">
             <strong>{zone.name}</strong>
-            <span className="map-popup-label">Risk intelligence</span>
+            <span className="map-popup-label">Zone intelligence</span>
             <span>Risk score: {risk.riskScore}/100</span>
             <span>Priority: {risk.priorityLevel}</span>
+            <span className="map-popup-label">Population</span>
+            <span>Total population: {zone.totalPopulation.toLocaleString('en-IN')}</span>
+            <span>Population exposed: {zone.populationExposed.toLocaleString('en-IN')}</span>
+            <span>Vulnerable population: {zone.vulnerablePopulation.toLocaleString('en-IN')}</span>
+            <span>Exposure: {Math.round((zone.populationExposed / zone.totalPopulation) * 100)}%</span>
+            <span className="map-popup-label">Vulnerability</span>
+            <span>Vulnerability score: {vulnerability.vulnerabilityScore}/100</span>
+            <span>Vulnerability level: {vulnerability.level}</span>
+            <span className="map-popup-label">Response factors</span>
             <span>Hazard severity: {risk.factors.hazardSeverity}</span>
-            <span>Population exposure: {risk.factors.populationExposure}</span>
-            <span>Vulnerability: {risk.factors.vulnerability}</span>
             <span>Infrastructure impact: {risk.factors.infrastructureImpact}</span>
             <span>Accessibility: {risk.factors.accessibility}</span>
+            <span className="map-popup-label">Resource coverage</span>
+            <span>Hospitals: {resources.nearbyHospitals.length}</span>
+            <span>Shelters: {resources.nearbyShelters.length}</span>
+            <span>Shelter capacity: {resources.availableShelterCapacity.toLocaleString('en-IN')}</span>
+            <span>Rescue teams available: {resources.availableRescueTeams.length}</span>
+            <span>Resource status: {resources.resourceStatus}</span>
+            <span className="map-popup-label">Road access</span>
+            <span>Accessibility: {roadAccess.accessibility}%</span>
+            <span>Nearby blocked roads: {roadAccess.blockedRoads}</span>
+            <span>Nearby restricted roads: {roadAccess.restrictedRoads}</span>
+            {roadAccess.accessibility < 50 && <span className="map-popup-explanation">Limited road accessibility may delay emergency response.</span>}
             <span className="map-popup-explanation">{explanation}</span>
           </div>
         </Popup>
@@ -132,18 +156,35 @@ function FloodZoneLayers() {
 }
 
 function RoadLayers() {
-  return roads.map((road) => (
-    <GeoJSON
+  return roadNetwork.map((road) => (
+    <Polyline
       key={road.id}
-      data={{ type: 'Feature', properties: { id: road.id }, geometry: road.geometry }}
-      style={ROAD_STYLES[road.status]}
+      positions={road.coordinates}
+      pathOptions={ROAD_STYLES[road.status]}
     >
-      <Popup><div className="map-popup"><strong>{road.name}</strong><span>Status: {road.status}</span></div></Popup>
-    </GeoJSON>
+      <Popup><div className="map-popup"><strong>{road.name}</strong><span>Status: {road.status}</span><span>Risk: {road.riskLevel}</span></div></Popup>
+    </Polyline>
   ))
 }
 
-export default function SituationMap() {
+function RouteVisualization({ routePlan }) {
+  if (!routePlan?.visible || !routePlan.route?.route.length) return null
+  const origin = roadNodes.find((node) => node.id === routePlan.originId)
+  const destination = roadNodes.find((node) => node.id === routePlan.destinationId)
+  const positions = routePlan.route.route.flatMap((segment, index) => index === 0 ? segment.coordinates : segment.coordinates.slice(1))
+
+  return (
+    <>
+      <Polyline positions={positions} pathOptions={{ color: routePlan.mode === 'safest' ? '#14b8b0' : '#2f81f7', weight: 6, opacity: 0.9 }}>
+        <Popup><div className="map-popup"><strong>{routePlan.mode === 'safest' ? 'Safest' : 'Fastest'} route</strong><span>{routePlan.route.totalDistance} km · {routePlan.route.estimatedTime} min estimate</span></div></Popup>
+      </Polyline>
+      {origin && <CircleMarker center={origin.coordinates} radius={8} pathOptions={{ color: '#ffffff', fillColor: '#2f81f7', fillOpacity: 1, weight: 2 }}><Popup><div className="map-popup"><strong>Route origin</strong><span>{origin.name}</span></div></Popup></CircleMarker>}
+      {destination && <CircleMarker center={destination.coordinates} radius={8} pathOptions={{ color: '#ffffff', fillColor: '#14b8b0', fillOpacity: 1, weight: 2 }}><Popup><div className="map-popup"><strong>Route destination</strong><span>{destination.name}</span></div></Popup></CircleMarker>}
+    </>
+  )
+}
+
+export default function SituationMap({ routePlan }) {
   return (
     <div className="relative h-[360px] overflow-hidden bg-panel-raised sm:h-[400px] lg:h-[430px]">
       <MapContainer
@@ -162,19 +203,20 @@ export default function SituationMap() {
           <Overlay checked name="Hospitals">
             {hospitals.map((hospital) => (
               <CircleMarker key={hospital.id} center={[hospital.latitude, hospital.longitude]} radius={7} pathOptions={{ color: '#ffffff', fillColor: '#dc3c46', fillOpacity: 1, weight: 2 }}>
-                <Popup><div className="map-popup"><strong>{hospital.name}</strong><span>Type: {hospital.type}</span></div></Popup>
+                <Popup><div className="map-popup"><strong>{hospital.name}</strong><span>Type: {hospital.type}</span><span>Total capacity: {hospital.capacity}</span><span>Available capacity: {hospital.availableCapacity}</span><span>Emergency ready: {hospital.emergencyReady ? 'Yes' : 'No'}</span></div></Popup>
               </CircleMarker>
             ))}
           </Overlay>
           <Overlay checked name="Relief Shelters">
             {reliefShelters.map((shelter) => (
               <CircleMarker key={shelter.id} center={[shelter.latitude, shelter.longitude]} radius={7} pathOptions={{ color: '#ffffff', fillColor: '#14b8b0', fillOpacity: 1, weight: 2 }}>
-                <Popup><div className="map-popup"><strong>{shelter.name}</strong><span>Capacity: {shelter.capacity.toLocaleString()} people</span></div></Popup>
+                <Popup><div className="map-popup"><strong>{shelter.name}</strong><span>Capacity: {shelter.capacity.toLocaleString()} people</span><span>Occupied: {shelter.occupied.toLocaleString()}</span><span>Available: {shelter.availableCapacity.toLocaleString()}</span></div></Popup>
               </CircleMarker>
             ))}
           </Overlay>
           <Overlay checked name="Roads"><RoadLayers /></Overlay>
         </LayersControl>
+        <RouteVisualization routePlan={routePlan} />
         <ResponsiveMapSize />
         <ResetViewButton />
       </MapContainer>

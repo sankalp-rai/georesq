@@ -1,3 +1,5 @@
+import { calculateVulnerability } from './vulnerabilityEngine.js'
+
 export const RISK_WEIGHTS = {
   hazardSeverity: 0.3,
   populationExposure: 0.25,
@@ -22,7 +24,7 @@ export function getPriorityLevel(riskScore) {
 export function calculateRisk(zone) {
   const hazardSeverity = normalizeFactor(zone.hazardSeverity)
   const populationExposure = normalizeFactor(zone.populationExposure)
-  const vulnerability = normalizeFactor(zone.vulnerability)
+  const vulnerability = calculateVulnerability(zone).vulnerabilityScore
   const infrastructureImpact = normalizeFactor(zone.infrastructureImpact)
   const accessibility = normalizeFactor(zone.accessibility)
   const accessibilityRisk = 100 - accessibility
